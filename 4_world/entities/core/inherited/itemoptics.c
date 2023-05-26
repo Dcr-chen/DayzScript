@@ -167,6 +167,11 @@ class ItemOptics extends InventoryItemSuper
 	 **/
 	proto native float GetZeroingDistanceZoomMax();
 
+	/**
+	 * @fn		SetZeroingClampDist
+	 * @brief	Sets zeroing clamp for the optics and updates the clamp if dist > 0. Used when attached to weapon.
+	 **/
+	proto native void SetZeroingClampDist(float dist);
 
 	
 	/*override void EEItemAttached(EntityAI item, string slot_name)
@@ -230,6 +235,12 @@ class ItemOptics extends InventoryItemSuper
 		super.OnWasAttached(parent, slot_id);
 		
 		SetTakeable(false);
+		
+		Weapon wep;
+		if (Class.CastTo(wep,parent))
+		{
+			SetZeroingClampDist(wep.GetZeroingClamp(wep.GetCurrentMuzzle()));
+		}
 	}
 
 	override void OnWasDetached( EntityAI parent, int slot_id )
@@ -243,6 +254,12 @@ class ItemOptics extends InventoryItemSuper
 		}
 		
 		SetTakeable(true);
+		
+		Weapon wep;
+		if (Class.CastTo(wep,parent))
+		{
+			SetZeroingClampDist(0.0);
+		}
 	}
 	
 	override void OnInventoryExit(Man player)

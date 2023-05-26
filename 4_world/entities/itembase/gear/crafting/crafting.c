@@ -8,8 +8,27 @@ class BurlapSack: Inventory_Base
 		AddAction(ActionCoverHeadSelf);
 	}
 };
-class GorkaHelmetVisor: Inventory_Base {};
-class ChickenFeather: Inventory_Base {};
+class GorkaHelmetVisor: Inventory_Base
+{
+	override protected void InitGlobalExclusionValues()
+	{
+		super.InitGlobalExclusionValues();
+		
+		AddSingleExclusionValueGlobal(EAttExclusions.EXCLUSION_MASK_2);
+		AddSingleExclusionValueGlobal(EAttExclusions.SHAVING_HEADGEAR_ATT_0);
+	}
+};
+
+class ChickenFeather: Inventory_Base 
+{
+	override void SetActions()
+	{
+		super.SetActions();
+
+		AddAction(ActionCraftBoltsFeather);
+	}
+};
+
 class LongWoodenStick: Inventory_Base
 {
 	override void SetActions()

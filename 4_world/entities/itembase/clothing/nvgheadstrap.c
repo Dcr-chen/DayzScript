@@ -1,29 +1,16 @@
-class NVGHeadstrap extends Clothing
+class NVGHeadstrap extends Glasses_Base
 {
-	override bool CanPutAsAttachment(EntityAI parent)
-	{
-		if (!super.CanPutAsAttachment(parent))
-			return false;
-		
-		Clothing helmet = Clothing.Cast(parent.FindAttachmentBySlotName( "Headgear" ));
-		if (helmet && helmet.ConfigGetBool("noNVStrap"))
-		{
-			return false;
-		}
-		
-		Clothing mask = Clothing.Cast(parent.FindAttachmentBySlotName("Mask"));
-		if (mask && mask.ConfigGetBool("noEyewear"))
-		{
-			return false;
-		}
-		
-		return true;
-	}
-	
 	override void SetActions()
 	{
 		super.SetActions();
 		
 		AddAction(ActionToggleNVG);
+	}
+	
+	override protected void InitGlobalExclusionValues()
+	{
+		super.InitGlobalExclusionValues();
+		ClearSingleExclusionValueGlobal(EAttExclusions.EXCLUSION_GLASSES_REGULAR_0);
+		AddSingleExclusionValueGlobal(EAttExclusions.EXCLUSION_HEADSTRAP_0);
 	}
 };

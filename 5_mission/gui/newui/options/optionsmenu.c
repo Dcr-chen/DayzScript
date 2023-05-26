@@ -79,9 +79,9 @@ class OptionsMenu extends UIScriptedMenu
 		m_Version.SetText(version);
 		
 		#ifdef PLATFORM_WINDOWS
-			SetFocus(layoutRoot);
+		SetFocus(layoutRoot);
 		#else
-			ToggleFocus();
+		ToggleFocus();
 		#endif
 		
 		m_Tabber.m_OnTabSwitch.Insert(OnTabSwitch);
@@ -161,16 +161,16 @@ class OptionsMenu extends UIScriptedMenu
 			case 2:
 			{
 				#ifdef PLATFORM_XBOX
-					m_ControlsTab.Focus();
+				m_ControlsTab.Focus();
 				#else
-					m_VideoTab.Focus();
+				m_VideoTab.Focus();
 				#endif
 				break;
 			}
 			case 3:
 			{
 				#ifndef PLATFORM_XBOX
-					m_ControlsTab.Focus();
+				m_ControlsTab.Focus();
 				#endif
 				break;
 			}
@@ -183,7 +183,7 @@ class OptionsMenu extends UIScriptedMenu
 	{
 		m_ControlsTab.Apply();
 		
-		//if (m_GameTab.IsChanged())
+		if (m_GameTab.IsChanged())
 		{
 			m_GameTab.Apply();
 		}
@@ -222,6 +222,9 @@ class OptionsMenu extends UIScriptedMenu
 			if (IsAnyTabChanged())
 			{
 				g_Game.GetUIManager().ShowDialog("#main_menu_configure", "#main_menu_configure_desc", 1337, DBT_YESNO, DBB_YES, DMT_QUESTION, this);
+				#ifdef PLATFORM_CONSOLE
+				UpdateControlsElements();
+				#endif
 			}
 			else
 			{
@@ -241,6 +244,9 @@ class OptionsMenu extends UIScriptedMenu
 			{
 				int id = target + DIALOG_TAB_OFFSET;
 				g_Game.GetUIManager().ShowDialog("#main_menu_configure", "#main_menu_configure_desc", id, DBT_YESNO, DBB_YES, DMT_QUESTION, this);
+				#ifdef PLATFORM_CONSOLE
+				UpdateControlsElements();
+				#endif
 			}
 		}
 		else
@@ -393,31 +399,26 @@ class OptionsMenu extends UIScriptedMenu
 		switch (m_ActiveTabIdx)
 		{
 			case 0:
-			{
 				m_GameTab.SetToDefaults();
 				break;
-			}
+
 			case 1:
-			{
 				m_SoundsTab.SetToDefaults();
 				break;
-			}
+
 			case 2:
-			{
 				#ifdef PLATFORM_XBOX
-					m_ControlsTab.SetToDefaults();
+				m_ControlsTab.SetToDefaults();
 				#else
-					m_VideoTab.SetToDefaults();
+				m_VideoTab.SetToDefaults();
 				#endif
 				break;
-			}
+
 			case 3:
-			{
 				#ifndef PLATFORM_XBOX
-					m_ControlsTab.SetToDefaults();
+				m_ControlsTab.SetToDefaults();
 				#endif
 				break;
-			}
 		}
 		
 		if (GetGame().GetInput().IsEnabledMouseAndKeyboard())
@@ -458,7 +459,7 @@ class OptionsMenu extends UIScriptedMenu
 		m_SoundsTab.ToggleDependentOptions(mode,state);
 		m_ControlsTab.ToggleDependentOptions(mode,state);
 		#ifndef PLATFORM_XBOX
-			m_VideoTab.ToggleDependentOptions(mode,state);
+		m_VideoTab.ToggleDependentOptions(mode,state);
 		#endif
 	}
 	
@@ -474,16 +475,16 @@ class OptionsMenu extends UIScriptedMenu
 			m_ControlsTab.SetOptions(m_Options);
 
 		#ifndef PLATFORM_XBOX
-			if (m_VideoTab)
-				m_VideoTab.SetOptions(m_Options);
+		if (m_VideoTab)
+			m_VideoTab.SetOptions(m_Options);
 		#endif
 	}
 	
 	void ReloadVideoOptions()
 	{
 		#ifndef PLATFORM_XBOX
-			if (m_VideoTab)
-				m_VideoTab.SetOptions(m_Options);
+		if (m_VideoTab)
+			m_VideoTab.SetOptions(m_Options);
 		#endif
 	}
 	
@@ -591,9 +592,9 @@ class OptionsMenu extends UIScriptedMenu
 		string version;
 		GetGame().GetVersion(version);
 		#ifdef PLATFORM_CONSOLE
-			version = "#main_menu_version" + " " + version + " (" + g_Game.GetDatabaseID() + ")";
+		version = "#main_menu_version" + " " + version + " (" + g_Game.GetDatabaseID() + ")";
 		#else
-			version = "#main_menu_version" + " " + version;
+		version = "#main_menu_version" + " " + version;
 		#endif
 		
 		m_Version.SetText(version);
@@ -618,6 +619,14 @@ class OptionsMenu extends UIScriptedMenu
 		if (m_ModalLock)
 		{
 			m_ModalLock = false;
+			#ifdef PLATFORM_CONSOLE
+			UpdateControlsElements();
+			#endif
+			return;
+		}
+		
+		if (g_Game.GetUIManager().IsDialogVisible())
+		{
 			return;
 		}
 		
@@ -774,20 +783,29 @@ class OptionsMenu extends UIScriptedMenu
 	
 	protected void UpdateControlsElements()
 	{
+		#ifdef PLATFORM_CONSOLE
 		RichTextWidget toolbar_text = RichTextWidget.Cast(layoutRoot.FindAnyWidget("ContextToolbarText"));
 		string text = "";
-		if (m_CanToggle)
+		if (g_Game.GetUIManager().IsDialogVisible() || g_Game.GetUIManager().IsDialogQueued())
 		{
-			text += string.Format(" %1",InputUtils.GetRichtextButtonIconFromInputAction("UAUISelect", "#dialog_change", EUAINPUT_DEVICE_CONTROLLER, InputUtils.ICON_SCALE_TOOLBAR));
+			text += string.Format(" %1",InputUtils.GetRichtextButtonIconFromInputAction("UAUISelect", "#dialog_confirm", EUAINPUT_DEVICE_CONTROLLER, InputUtils.ICON_SCALE_TOOLBAR));
+			
 		}
-		if (m_CanApplyOrReset)
+		else
 		{
-			text += string.Format(" %1",InputUtils.GetRichtextButtonIconFromInputAction("UAUICtrlX", "#STR_settings_menu_root_toolbar_bg_ConsoleToolbar_Apply_ApplyText0", EUAINPUT_DEVICE_CONTROLLER, InputUtils.ICON_SCALE_TOOLBAR));
-		}
-		text += string.Format(" %1",InputUtils.GetRichtextButtonIconFromInputAction("UAUICtrlY", "#menu_default", EUAINPUT_DEVICE_CONTROLLER, InputUtils.ICON_SCALE_TOOLBAR));
-		if (m_CanApplyOrReset)
-		{
-			text += string.Format(" %1",InputUtils.GetRichtextButtonIconFromInputAction("UAUICredits", "#menu_undo", EUAINPUT_DEVICE_CONTROLLER, InputUtils.ICON_SCALE_TOOLBAR));
+			if (m_CanToggle)
+			{
+				text += string.Format(" %1",InputUtils.GetRichtextButtonIconFromInputAction("UAUISelect", "#dialog_change", EUAINPUT_DEVICE_CONTROLLER, InputUtils.ICON_SCALE_TOOLBAR));
+			}
+			if (m_CanApplyOrReset)
+			{
+				text += string.Format(" %1",InputUtils.GetRichtextButtonIconFromInputAction("UAUICtrlX", "#STR_settings_menu_root_toolbar_bg_ConsoleToolbar_Apply_ApplyText0", EUAINPUT_DEVICE_CONTROLLER, InputUtils.ICON_SCALE_TOOLBAR));
+			}
+			text += string.Format(" %1",InputUtils.GetRichtextButtonIconFromInputAction("UAUICtrlY", "#menu_default", EUAINPUT_DEVICE_CONTROLLER, InputUtils.ICON_SCALE_TOOLBAR));
+			if (m_CanApplyOrReset)
+			{
+				text += string.Format(" %1",InputUtils.GetRichtextButtonIconFromInputAction("UAUICredits", "#menu_undo", EUAINPUT_DEVICE_CONTROLLER, InputUtils.ICON_SCALE_TOOLBAR));
+			}
 		}
 		text += string.Format(" %1",InputUtils.GetRichtextButtonIconFromInputAction("UAUIBack", "#STR_settings_menu_root_toolbar_bg_ConsoleToolbar_Back_BackText0", EUAINPUT_DEVICE_CONTROLLER, InputUtils.ICON_SCALE_TOOLBAR));
 		toolbar_text.SetText(text);
@@ -800,6 +818,7 @@ class OptionsMenu extends UIScriptedMenu
 		toolbar_x2.SetText(InputUtils.GetRichtextButtonIconFromInputAction("UAUICtrlX", "", EUAINPUT_DEVICE_CONTROLLER));
 		toolbar_y2.SetText(InputUtils.GetRichtextButtonIconFromInputAction("UAUICredits", "", EUAINPUT_DEVICE_CONTROLLER));
 		toolbar_def2.SetText(InputUtils.GetRichtextButtonIconFromInputAction("UAUICtrlY", "", EUAINPUT_DEVICE_CONTROLLER));
+		#endif
 	}
 	
 	protected void UpdateControlsElementVisibility()

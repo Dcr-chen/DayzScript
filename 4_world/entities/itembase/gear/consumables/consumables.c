@@ -36,6 +36,22 @@ class Bandana_ColorBase: Clothing
 			return 0.15;
 		}
 	}
+	
+	override protected set<int> GetAttachmentExclusionInitSlotValue(int slotId)
+	{
+		set<int> ret = super.GetAttachmentExclusionInitSlotValue(slotId);
+		switch (slotId)
+		{
+			case InventorySlots.HEADGEAR:
+				return ret;//no discernable conflict zone here
+			break;
+			
+			default:
+				ret.Insert(EAttExclusions.EXCLUSION_MASK_3);
+			break;
+		}
+		return ret;
+	}
 };
 class Bandana_RedPattern: Bandana_ColorBase {};
 class Bandana_BlackPattern: Bandana_ColorBase {};

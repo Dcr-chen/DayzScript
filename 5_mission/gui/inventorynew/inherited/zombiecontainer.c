@@ -317,6 +317,30 @@ class ZombieContainer: CollapsibleContainer
 				in.UpdateConsoleToolbar();
 		}
 	}
+	
+	override bool CANOPENCLOSECONTAINEREX(EntityAI focusedEntity)
+	{
+		ClosableContainer c;
+		if (focusedEntity)
+		{
+			c = ClosableContainer.Cast( m_ShowedItems.Get( focusedEntity ) );
+		}
+		else
+		{
+			SlotsIcon icon = GetFocusedSlotsIcon();
+			if (icon)
+			{
+				c = ClosableContainer.Cast(icon.GetContainer());
+			}
+		}
+		
+		if (c && c.IsDisplayable())	
+		{	
+			return true;
+		}
+
+		return false;
+	}
 
 	// mouse button UP or call from ExpandCollapseContainer
 	void ToggleContainer( Widget w )
@@ -472,7 +496,7 @@ class ZombieContainer: CollapsibleContainer
 	
 	void DoubleClick(Widget w, int x, int y, int button)
 	{
-		if( button == MouseState.LEFT )
+		if( button == MouseState.LEFT && !g_Game.IsLeftCtrlDown())
 		{
 			if( w == null )
 			{
