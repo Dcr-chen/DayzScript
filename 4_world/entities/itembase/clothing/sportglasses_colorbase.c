@@ -1,17 +1,12 @@
-class SportGlasses_ColorBase extends Clothing 
+class SportGlasses_ColorBase extends Glasses_Base 
 {
-	override bool CanPutAsAttachment(EntityAI parent)
+	override protected void InitGlobalExclusionValues()
 	{
-		if (!super.CanPutAsAttachment(parent))
-			return false;
+		super.InitGlobalExclusionValues();
+		ClearSingleExclusionValueGlobal(EAttExclusions.EXCLUSION_GLASSES_REGULAR_0);
+		AddSingleExclusionValueGlobal(EAttExclusions.EXCLUSION_GLASSES_TIGHT_0);
 		
-		Clothing mask = Clothing.Cast(parent.FindAttachmentBySlotName("Mask"));
-		if (mask && mask.ConfigGetBool("noEyewear"))
-		{
-			return false;
-		}
-		
-		return true;
+		AddSingleExclusionValueGlobal(EAttExclusions.EXCLUSION_MASK_2); //TODO: check consistent mask conflict
 	}
 };
 

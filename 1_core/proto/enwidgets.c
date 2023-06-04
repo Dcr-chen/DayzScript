@@ -107,7 +107,16 @@ class Widget: Managed
 {
 	proto void ~Widget();
 	proto private void Widget();
+	
 	proto static string TranslateString(string stringId);
+	
+	//! Set global LV of widgets, value between [-15, 0], default: 0, lower value is less bright
+	proto static void SetLV(float lv);
+	//! Set global LV of the text in widgets, value between [-15, 0], default: 0, lower value is less bright
+	proto static void SetTextLV(float lv);
+	//! Set global lighting of objects in widgets, value between [0, 1], default: 1, lower value is less bright
+	proto static void SetObjectLighting(float lighting);
+	
 	proto native owned string GetName();
 	proto native void SetName(string name);
 	proto native owned string GetTypeName();
@@ -128,7 +137,9 @@ class Widget: Managed
 	proto native bool IsVisible();
 	proto native bool IsVisibleHierarchy();
 	proto native void SetPos(float x, float y, bool immedUpdate = true);
-	proto native void SetSize(float x, float y, bool immedUpdate = true);
+	proto native void SetSize(float w, float h, bool immedUpdate = true);
+	proto native void SetScreenPos(float x, float y, bool immedUpdate = true);
+	proto native void SetScreenSize(float w, float h, bool immedUpdate = true);
 	proto native void SetColor(int color);
 	proto native int GetColor();
 	proto native void SetRotation(float roll, float pitch, float yaw, bool immedUpdate = true);
@@ -419,14 +430,14 @@ class SimpleListboxWidget extends BaseListboxWidget
 
 class TextListboxWidget extends SimpleListboxWidget
 {
-	//! 插入新行,如果一行= 1,最后插入新行,否则行索引。
+	//! Insert new Row, if row = -1, new Row is inserted at the end otherwise at row index.
 	proto native int AddItem(string text, Class userData, int column, int row = -1);
 	proto native void SetItem(int position, string text, Class userData, int column);
 /**
-\短暂的得到项目
-	\param row \p int 索引的行
-	\param column \p int 索引的列
-	\return \p string 在小部件的行和列的值
+\brief Get item
+	\param row \p int Index of row
+	\param column \p int Index of column
+	\return \p string Value in widget on row and column
 	@code
 		string value;
 		textListboxWidg.GetItemText(2, 0, value);
@@ -462,7 +473,7 @@ class WrapSpacerWidget extends SpacerWidget
 class ScrollWidget extends SpacerBaseWidget
 {
 	proto native float GetScrollbarWidth();
-	proto native bool IsScrollbarVisible(); //反映本机c++侧滚动条状态
+	proto native bool IsScrollbarVisible(); //reflects native C++ side scrollbar state
 
 	proto native float GetContentWidth();
 	proto native float GetContentHeight();
@@ -501,8 +512,8 @@ class VideoWidget extends Widget
 	proto native void DisableSubtitles(bool disable);
 };
 
-/*! 设置部件typu RTTextureWidgetTypeID,可以参考材质rendertarget美元
-之后才可能使用对象的选择。选择另一个对象时,有必要再次设置GUI窗口小部件
+/*! sets Widget typu RTTextureWidgetTypeID, to which it is possible to reference in shader as $rendertarget
+it is posible to use only after object selection. When selecting another object, it is necessary to set GUI widget again
 */
 proto native void SetGUIWidget(IEntity ent, int index, RTTextureWidget w);
 
@@ -523,7 +534,6 @@ enum ControlID
 	CID_COUNT
 };
 
-//! @brief Base class for all widgets
 class ScriptedWidgetEventHandler: Managed
 {
 	bool OnClick(Widget w, int x, int y, int button);
@@ -538,7 +548,7 @@ class ScriptedWidgetEventHandler: Managed
 	bool OnMouseWheel(Widget w, int x, int y, int wheel);
 	bool OnMouseButtonDown(Widget w, int x, int y, int button);
 	bool OnMouseButtonUp(Widget w, int x, int y, int button);
-	//! 控制是ControlID之一
+	//! control is one of ControlID 
 	bool OnController(Widget w, int control, int value);
 	bool OnKeyDown(Widget w, int x, int y, int key);
 	bool OnKeyUp(Widget w, int x, int y, int key);
@@ -556,28 +566,28 @@ class ScriptedWidgetEventHandler: Managed
 	bool OnEvent(EventType eventType, Widget target, int parameter0, int parameter1);
 };
 
-//常见的Widget API
+//Common Widget API
 proto native void SetCursorWidget(Widget cursor);
 proto native void ShowCursorWidget(bool show);
 proto native bool LoadWidgetImageSet(string filename);
 proto native void LoadWidgetStyles(string filename);
-// 集活动窗口(部件拥有一些控制输入如按钮、列表框等)。必要的控制键盘/手柄的焦点。以防setFocus设置为true时,它集关注第一个孩子小部件,可能会收到重点(不是残疾人,设置为NoFocus等等)。
+// sets active window (widget which owns some control inputs like buttons, listboxes etc.). Necessary for controlling the focus by keyboard/joypad. In case when setFocus is set to true, it sets focus on a first child Widget, which may receive the focus (is not disabled, set as NoFocus etc.)
 proto native bool SetActiveWindow(Widget w, bool resetFocus);
 
-// 集焦点(必要时使用键盘/ joyped)到一个特定的小部件。部件必须等输入按钮,列表框,复选框,组合框等。
+// sets focus (necessary when using keyboard/joyped) to a particular widget. Widget must have some inputs like button, listbox, checkbox, combobox etc.
 proto native void SetFocus(Widget w);
 
 proto native void SetModal(Widget w);
 
 proto native Widget GetFocus();
 
-//渲染目标部件类型ID
+//RenderTargetWidgetTypeID
 proto native void SetWidgetWorld(RenderTargetWidget w, IEntity wrldEntity, int camera);
 
 
 #ifdef PS3
 	/*!
-	圆时可以交换和交叉许可区域是日本/亚洲
+	circle and cross can be swapped when license area is japan/asia
 	*/
 	proto native bool IsCircleToCrossSwapped();
 #endif

@@ -74,7 +74,7 @@ class HumanInventoryWithFSM : HumanInventory
 		
 		m_FSM.AddTransition(new HandTransition(m_Empty, __Rh_, replacingElsewhere3));
 		m_FSM.AddTransition(new HandTransition(replacingElsewhere3, _fin_, m_Equipped));
-			replacingElsewhere.AddTransition(new HandTransition(replacingElsewhere3.m_Replacing, _abt_, m_Empty));
+			replacingElsewhere3.AddTransition(new HandTransition(replacingElsewhere3.m_Replacing, _abt_, m_Empty));
 		
 		m_FSM.AddTransition(new HandTransition(m_Equipped, __Rd_, m_Equipped, new HandActionReplaced, null));
 		m_FSM.AddTransition(new HandTransition(m_Equipped, __W__, m_Equipped, new HandActionSwap, new HandGuardAnd(new HandGuardHasItemInHands(GetManOwner()), new HandGuardCanSwap(GetManOwner()))));
@@ -83,6 +83,8 @@ class HumanInventoryWithFSM : HumanInventory
 		// start FSM
 		m_FSM.SetInitialState(m_Empty);
 		m_FSM.Start();
+		
+		super.Init();
 	}
 
 	bool CanProcessHandEvents () { return m_FSM && m_FSM.IsRunning(); }

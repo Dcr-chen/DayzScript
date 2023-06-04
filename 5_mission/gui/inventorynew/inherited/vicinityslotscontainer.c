@@ -73,14 +73,6 @@ class VicinitySlotsContainer: Container
 		return ent.IsTakeable();
 	}
 	
-	override bool CanCombine()
-	{
-		ItemBase ent = ItemBase.Cast(  GetFocusedItem() );
-		ItemBase item_in_hands = ItemBase.Cast(	GetGame().GetPlayer().GetHumanInventory().GetEntityInHands() );
-		
-		return ( ItemManager.GetCombinationFlags( item_in_hands, ent ) != 0 );
-	}
-	
 	override bool CanCombineAmmo()
 	{
 		PlayerBase m_player = PlayerBase.Cast( GetGame().GetPlayer() );
@@ -90,21 +82,6 @@ class VicinitySlotsContainer: Container
 		Class.CastTo(amc, m_player.GetActionManager());
 
 		return ( amc.CanPerformActionFromInventory( item_in_hands, ent ) || amc.CanSetActionFromInventory( item_in_hands, ent ) );
-	}
-	
-	override bool CanEquip()
-	{
-		EntityAI ent = GetFocusedItem();
-		InventoryLocation il = new InventoryLocation;
-		bool found = GetGame().GetPlayer().GetInventory().FindFreeLocationFor(ent,FindInventoryLocationType.ATTACHMENT,il);
-		if (found)
-		{
-			return true;
-		}
-		else
-		{
-			return false;
-		}
 	}
 	
 	override bool EquipItem()
@@ -353,7 +330,7 @@ class VicinitySlotsContainer: Container
 	
 	void DoubleClick(Widget w, int x, int y, int button)
 	{
-		if( button == MouseState.LEFT )
+		if( button == MouseState.LEFT && !g_Game.IsLeftCtrlDown())
 		{
 			if( w == null )
 			{
@@ -511,14 +488,6 @@ class VicinitySlotsContainer: Container
 		ItemPreviewWidget item_preview = ItemPreviewWidget.Cast( w.FindAnyWidget( name ) );
 		ItemBase item = ItemBase.Cast( item_preview.GetItem() );
 		bool draggable = ItemManager.GetInstance().EvaluateContainerDragabilityDefault(item);
-		#ifdef DIAG_DEVELOPER
-		if ( item )
-		{
-			if ( GetDayZGame().IsLeftCtrlDown() )
-				ShowActionMenu( item );
-		}
-		#endif
-		
 		ItemManager.GetInstance().SetWidgetDraggable( w, draggable );
 	}
 	
@@ -531,6 +500,14 @@ class VicinitySlotsContainer: Container
 		EntityAI item = item_preview.GetItem();
 		InventoryItem itemAtPos = InventoryItem.Cast( item );
 		Container conta;
+		
+		#ifdef DIAG_DEVELOPER
+		if ( ItemBase.Cast(item) )
+		{
+			if ( GetDayZGame().IsLeftCtrlDown() && button == MouseState.RIGHT )
+				ShowActionMenu( ItemBase.Cast(item) );
+		}
+		#endif
 		
 		if( m_Parent )
 		{

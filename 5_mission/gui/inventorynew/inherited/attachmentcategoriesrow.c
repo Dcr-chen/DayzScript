@@ -71,9 +71,9 @@ class AttachmentCategoriesRow: ClosableContainer
 						return true;
 					}
 				}
-				else if( focused_icon.GetSlotID() != -1 )
+				else if (focused_icon.GetSlotID() != -1)
 				{
-					if( focused_item && focused_item.GetInventory().CanRemoveEntity() )
+					if (focused_item && focused_item.GetHierarchyParent() && focused_item.GetHierarchyParent().GetInventory().CanAddAttachment(selected_item))
 					{
 						InventoryLocation inv_loc = new InventoryLocation;
 						focused_item.GetInventory().GetCurrentInventoryLocation( inv_loc );
@@ -219,17 +219,17 @@ class AttachmentCategoriesRow: ClosableContainer
 		return true;
 	}
 	
+	override bool CanSplitEx(EntityAI focusedItem)
+	{
+		return false;
+	}
+
 	override bool SplitItem()
 	{
 		return false;
 	}
 	
 	override bool EquipItem() //TODO: may be possible, but the hint doesn't reflect it anyway
-	{
-		return false;
-	}
-	
-	override bool CanEquip()
 	{
 		return false;
 	}
@@ -491,7 +491,7 @@ class AttachmentCategoriesRow: ClosableContainer
 	
 	void DoubleClick(Widget w, int x, int y, int button)
 	{
-		if( button == MouseState.LEFT )
+		if( button == MouseState.LEFT && !g_Game.IsLeftCtrlDown())
 		{
 			if( w == null )
 			{
@@ -805,7 +805,8 @@ class AttachmentCategoriesRow: ClosableContainer
 				
 			string slot_name_ 			= InventorySlots.GetSlotName(slot_id_);
 			bool draggable				= true;
-			bool in_hands_condition		= m_Entity.GetHierarchyRoot() == GetGame().GetPlayer() && item.GetInventory().CanRemoveEntity();
+			bool can_be_removed			= item.GetInventory().CanRemoveEntity();
+			bool in_hands_condition		= m_Entity.GetHierarchyRoot() == GetGame().GetPlayer();
 			bool in_vicinity_condition	= AttachmentsOutOfReach.IsAttachmentReachable( m_Entity, slot_name_ );
 			if( m_Entity.GetInventory().GetSlotLock( slot_id_ ) && ItemManager.GetInstance().GetDraggedItem() != item )
 			{
@@ -822,7 +823,7 @@ class AttachmentCategoriesRow: ClosableContainer
 				draggable = false;
 			}
 			
-			if( in_hands_condition || in_vicinity_condition )
+			if ((in_hands_condition || in_vicinity_condition) && can_be_removed)
 			{
 				icon.GetOutOfReachWidget().Show( false );
 			}
@@ -864,7 +865,7 @@ class AttachmentCategoriesRow: ClosableContainer
 		}
 		
 		#ifdef DIAG_DEVELOPER		
-		if ( GetDayZGame().IsLeftCtrlDown() && button == 1 )
+		if ( GetDayZGame().IsLeftCtrlDown() && button == MouseState.RIGHT )
 		{
 			SlotsIcon user_data;
 			w.GetUserData(user_data);

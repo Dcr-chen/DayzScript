@@ -46,6 +46,12 @@ class DayZCreature extends EntityAI
 	proto native bool IsDeathProcessed();
 	proto native bool IsDeathConditionMet();
 	
+	//---------------------------------------------------------
+	// bone transforms 
+
+	//! returns bone index for a name (-1 if pBoneName doesn't exist)
+	proto native 	int 		GetBoneIndexByName(string pBoneName);
+	
 	override bool IsDayZCreature()
 	{
 		return true;
@@ -60,6 +66,51 @@ class DayZCreature extends EntityAI
 	{
 		return IsRuined();
 	}
+	
+	override bool IsManagingArrows()
+	{
+		return true;
+	}	
+	
+	override void AddArrow(Object arrow, int componentIndex, vector closeBonePosWS, vector closeBoneRotWS)
+	{
+		CachedObjectsArrays.ARRAY_STRING.Clear();
+		GetActionComponentNameList(componentIndex, CachedObjectsArrays.ARRAY_STRING, "fire");
+		
+		int pivot = -1;
+		
+		
+		for (int i = 0; i < CachedObjectsArrays.ARRAY_STRING.Count() && pivot == -1; i++)
+		{
+			pivot = GetBoneIndexByName(CachedObjectsArrays.ARRAY_STRING.Get(i));
+		}
+		
+		vector parentTransMat[4];
+		vector arrowTransMat[4];
+		
+		if (pivot == -1)
+		{
+			GetTransform(parentTransMat);
+		}
+		else
+		{
+			vector rotMatrix[3];
+			Math3D.YawPitchRollMatrix(closeBoneRotWS * Math.RAD2DEG,rotMatrix);
+			
+			parentTransMat[0] = rotMatrix[0];
+			parentTransMat[1] = rotMatrix[1];
+			parentTransMat[2] = rotMatrix[2];
+			parentTransMat[3] = closeBonePosWS;
+		}
+		
+		arrow.GetTransform(arrowTransMat);
+		Math3D.MatrixInvMultiply4(parentTransMat, arrowTransMat, arrowTransMat);
+		// orthogonalize matrix - parent might be skewed
+		Math3D.MatrixOrthogonalize4(arrowTransMat);
+		arrow.SetTransform(arrowTransMat);
+		
+		AddChild(arrow, pivot);
+	} 
 }
 
 class DayZCreatureAI extends DayZCreature 
@@ -556,8 +607,6 @@ class DayZAnimal extends DayZCreatureAI
 			{
 				StartCommand_Death(0, 0);
 			}
-			
-			dBodySetInteractionLayer(this, PhxInteractionLayers.RAGDOLL);
 	
 			return true;
 		}

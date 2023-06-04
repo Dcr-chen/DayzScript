@@ -89,6 +89,7 @@ class PluginRecipesManagerBase extends PluginBase
 		RegisterRecipe(new BloodTest);
 		RegisterRecipe(new SharpenMelee);
 		RegisterRecipe(new RepairEpoxy);
+		RegisterRecipe(new RepairWithPliers);
 		RegisterRecipe(new CraftArmbandRaincoat);
 		RegisterRecipe(new RepairElectric);
 		//RegisterRecipe(new RefuelTorch);

@@ -1,15 +1,13 @@
-class CrookedNose extends Clothing
+class CrookedNose extends Mask_Base
 {
-	override bool CanPutAsAttachment( EntityAI parent )
+	override protected void InitGlobalExclusionValues()
 	{
-		if (!super.CanPutAsAttachment(parent)) {return false;}
+		super.InitGlobalExclusionValues();
 		
-		Clothing headgear = Clothing.Cast(parent.FindAttachmentBySlotName("Headgear"));
-		if ( headgear && headgear.ConfigGetBool("noMask") )
-		{
-			return false;
-		}
+		AddSingleExclusionValueGlobal(EAttExclusions.EXCLUSION_MASK_0);
+		AddSingleExclusionValueGlobal(EAttExclusions.EXCLUSION_MASK_1);
+		AddSingleExclusionValueGlobal(EAttExclusions.EXCLUSION_MASK_2);
 		
-		return true;
+		AddSingleExclusionValueGlobal(EAttExclusions.EXCLUSION_HEADGEAR_HELMET_0);
 	}
 }

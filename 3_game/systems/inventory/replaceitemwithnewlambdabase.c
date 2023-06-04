@@ -193,7 +193,7 @@ class ReplaceItemWithNewLambdaBase
 	protected void DeleteOldEntity()
 	{
 		hndDebugPrint("[inv] ReplaceItemWithNewLambdaBase Step F) delete old item=" + m_OldItem);
-		GetGame().ObjectDelete(m_OldItem);
+		m_OldItem.DeleteSafe();
 	}
 	
 	/**@fn		CreateNetworkObjectInfo
@@ -285,6 +285,10 @@ class ReplaceItemWithNewLambdaBase
 		else
 		{
 			Print("[syncinv] warning, lambda cannot be executed, skipping!");
+			if (fsm_to_notify)
+				fsm_to_notify.ProcessHandAbortEvent(new HandEventHumanCommandActionAborted(fsm_to_notify.GetManOwner()));
+			OnAbort();
+			return;
 		}
 		int te = GetGame().GetTime();
 		int dt = te - t;
